@@ -1,3 +1,2 @@
 # EE2213-Ultimate
-
-refer to comments in code on how to use them
+Includes all algorithms taught in the course.

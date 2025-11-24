@@ -10,6 +10,8 @@ from OneHotLinearClassification import onehot_linearclassification
 from pearson_correlation import pearson_correlation
 from GradientDescent import GradientDescent
 from ProjectedGradientDescent import SimpleProjectedGradientDescent
+from k_means_cluster import custom_kmeans
+from fuzzy_cmeans import fuzzy_Cmeans
 from bfs import bfs
 from bfs import bfs_path
 from dfs import dfs
@@ -281,7 +283,7 @@ w_initial = np.array(
      [-1]
     ]
 )
-logistic_regression(X, Y, X_test, w_initial, learning_rate=0.1, num_iters=10000, binary_threshold=0.5)
+# logistic_regression(X, Y, X_test, w_initial, learning_rate=0.1, num_iters=10000, binary_threshold=0.5)
 # multinomial_logistic_regression(X, Y, X_test, w_initial, learning_rate=0.5, num_iters=10000)
 
 
@@ -293,3 +295,31 @@ used for feature selection, to see which X features have high correlation with Y
 '''
 # pearson_correlation(X,Y)
 
+
+'''
+perform kmeans clustering and fuzzy c-means clustering, can be 2D or higher dimensions
+    returns converged centers and cluster labels for k means, membership matrix for fuzzy c-means. 
+    fuzzier determines the level of cluster fuzziness (of a point overlapping into multiple clusters)
+    Auto stop iterations upon convergence.
+'''
+x1 = np.array([5])
+x2 = np.array([6])
+x3 = np.array([9])
+x4 = np.array([11])
+x5 = np.array([13])
+x6 = np.array([14])
+x7 = np.array([15])
+x8 = np.array([18])
+x9 = np.array([18])
+x10 = np.array([22])
+x11 = np.array([23])
+x12 = np.array([26])
+data_points = np.array([x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12])
+c1_init = np.array([6])
+c2_init = np.array([13.0])
+c3_init = np.array([22.0])
+centers_init = np.array([c1_init, c2_init, c3_init])
+
+# custom_kmeans(data_points, centers_init, n_clusters=3, max_iterations=100)
+
+# centers, W = fuzzy_Cmeans(data_points, centers_init, fuzzier=2, max_iterations=100, verbose=True)

@@ -52,30 +52,49 @@ def update_centers(data_points, W, fuzzier=2):
 		return centers
 
 # Fuzzy_Cmeans Clustering
-def fuzzy_Cmeans(data_points, centers_init, fuzzier=2, max_iterations=100, tol=1e-4):
-	centers = centers_init.copy() # make a copy of initial center to work on.
-	for _ in range(max_iterations): # The underscore _ is a throwaway variable, meaning “I don’t care about the loop variable.”
-		
+def fuzzy_Cmeans(data_points, centers_init, fuzzier=2, max_iterations=100, tol=1e-4, verbose=False):
+	"""Fuzzy C-Means clustering.
+
+	Parameters:
+		data_points : ndarray (n_samples, n_features)
+		centers_init: ndarray (n_clusters, n_features)
+		fuzzier     : fuzzifier (>1), commonly 2
+		max_iterations : cap on iterations
+		tol         : convergence tolerance on center shift (L2 norm)
+		verbose     : if True, print per-iteration centers, distance matrix, membership matrix
+
+	Returns:
+		centers : final cluster centers
+		W       : final membership matrix (n_samples, n_clusters)
+	"""
+	centers = centers_init.copy()  # work copy
+	W = None  # to hold latest membership
+	for it in range(1, max_iterations+1):
+		# Membership update (assignment step) for current centers
 		W = update_membership(data_points, centers, fuzzier)
-		
-		new_centers = update_centers(data_points, W, fuzzier=2)
-
-		if np.linalg.norm(new_centers - centers) < tol:
-			break
+		# Distance matrix based on current centers
+		dist_matrix = np.linalg.norm(data_points[:, None, :] - centers[None, :, :], axis=2)
+		# Compute new centers from current membership
+		new_centers = update_centers(data_points, W, fuzzier=fuzzier)
+		shift = np.linalg.norm(new_centers - centers)
+		if verbose:
+			print(f"Iter {it}:")
+			print("Centers (before update):\n", centers)
+			print("Distance matrix (rows samples, cols clusters):\n", dist_matrix)
+			print("Membership matrix W (rows samples, cols clusters):\n", W)
+			print("Hard cluster assignments (argmax per sample):\n", np.argmax(W, axis=1))
+			print("Proposed new centers:\n", new_centers)
+			print(f"Center shift L2: {shift:.6f}\n")
+		# Convergence check
 		centers = new_centers
-	return centers, W
-
-if __name__ == "__main__":
-	x1 = np.array([0, 0])
-	x2 = np.array([1, 0])
-	x3 = np.array([0, 1])
-	x4 = np.array([1, 1])
-	data_points = np.array([x1, x2, x3, x4])
-
-	c1_init = x1.copy()
-	c2_init = x2.copy()
-	centers_init = np.array([c1_init, c2_init])
-
-	centers, W = fuzzy_Cmeans(data_points, centers_init)
-	print("Converged centers :", centers)
-	print("Final membership matrix (W):", W)
+		if shift < tol:
+			break
+	# Recompute membership for final centers to align outputs
+	W_final = update_membership(data_points, centers, fuzzier)
+	if verbose:
+		final_dist = np.linalg.norm(data_points[:, None, :] - centers[None, :, :], axis=2)
+		print("Final Centers:\n", centers)
+		print("Final Distance matrix:\n", final_dist)
+		print("Final Membership matrix W:\n", W_final)
+		print("Final hard cluster assignments (argmax per sample):\n", np.argmax(W_final, axis=1))
+	return centers, W_final

@@ -1,59 +1,66 @@
 import numpy as np
 
-# Data points
-x1 = np.array([0, 0])
-x2 = np.array([1, 0])
-x3 = np.array([0, 1])
-x4 = np.array([1, 1])
+def custom_kmeans(data_points, centers_init, n_clusters, max_iterations=100, tol=1e-4, verbose=True):
+  """
+  K-means clustering with per-iteration reporting.
 
-data_points = np.array([x1, x2, x3, x4])
+  Prints at every iteration (if verbose):
+  - Distances from each data point to each centroid (rows=samples, cols=centroids)
+  - Cluster assignment (nearest centroid index per sample)
+  - Centroid positions before and after the update, and their movement
+  Returns final centers, labels, and final distance matrix.
+  """
+  # Ensure arrays and validate shapes
+  X = np.asarray(data_points, dtype=float)
+  C = np.asarray(centers_init, dtype=float).copy()
+  if C.shape != (n_clusters, X.shape[1]):
+    raise ValueError(f"centers_init must have shape (n_clusters, n_features) = {(n_clusters, X.shape[1])}, got {C.shape}")
 
-# Initial centers
-c1_init = x1.copy()
-c2_init = x2.copy()
+  if verbose:
+    np.set_printoptions(precision=4, suppress=True)
 
-centers_init = np.array([c1_init, c2_init])
+  for it in range(max_iterations):
+    # Distances: (n_samples, n_clusters)
+    distances = np.linalg.norm(X[:, np.newaxis, :] - C[np.newaxis, :, :], axis=2)
+    labels = np.argmin(distances, axis=1)
 
-def k_means(data_points, centers_init, n_clusters, max_iterations=100, tol=1e-4) :
-  
-  centers = centers_init.copy() # Make a copy of the initial centers
+    if verbose:
+      print(f"Iteration {it}")
+      print("Distances (rows: points, cols: centroids):\n", np.round(distances, 4))
+      print("Assignments:", labels)
+      print("Centers before update:\n", np.round(C, 4))
 
-  for _ in range(max_iterations): #The underscore _ is a throwaway variable, meaning “I don’t care about the loop variable.”
-    
-    # Compute squared Euclidean distances to each centroid
-    # Result shape: (n_samples, k)
-    distances = np.linalg.norm(data_points[:, np.newaxis] - centers, axis=2)
+    # Update centers; handle empty clusters by keeping previous center
+    new_C = C.copy()
+    for k in range(n_clusters):
+      mask = (labels == k)
+      if np.any(mask):
+        new_C[k] = X[mask].mean(axis=0)
+      else:
+        new_C[k] = C[k]  # keep previous center (alternative: reinit to a random point)
 
-    # Assign each point to the index of the closest centroid
-    closest_centroids = np.argmin(distances, axis=1) # Finds the index of the minimum value along each row
+    # Check convergence via max shift across centers
+    shifts = np.linalg.norm(new_C - C, axis=1)
+    max_shift = float(np.max(shifts))
+    C = new_C
 
-    # Update centroids to be the mean of the data points assigned to them
-    new_centers = np.zeros((n_clusters, data_points.shape[1])) # Initialize new centers
-    for i in range(n_clusters):
-      new_centers[i] = data_points[closest_centroids == i].mean(axis=0)
-    
-    # End if centroids no longer change
-    if np.linalg.norm(new_centers - centers) < tol:
+    if verbose:
+      print("Centers after update:\n", np.round(C, 4))
+      print("Center shifts:", np.round(shifts, 4))
+      print("-" * 40)
+
+    if max_shift < tol:
+      if verbose:
+        print(f"Converged at iteration {it}")
       break
-    centers = new_centers
-  return centers, closest_centroids
 
+  # Final distances and labels for the converged centers
+  distances = np.linalg.norm(X[:, np.newaxis, :] - C[np.newaxis, :, :], axis=2)
+  labels = np.argmin(distances, axis=1)
 
-# distances = np.linalg.norm(data_points[:, np.newaxis] - centers, axis=2)
-# break step by step
-print(data_points[:, np.newaxis]) #add a new axis between the two existing ones.
-data_points[:, np.newaxis].shape
+  if verbose:
+    print("Final centers:\n", np.round(C, 4))
+    print("Final assignments:", labels)
+    print("Final distances:\n", np.round(distances, 4))
 
-# distances = np.linalg.norm(data_points[:, np.newaxis] - centers, axis=2)
-# break step by step
-# NumPy automatically broadcasts centers along the second axis of data_points
-data_points[:, np.newaxis] - centers_init
-
-# distances = np.linalg.norm(data_points[:, np.newaxis] - centers, axis=2)
-# break step by step
-#computes the L2 norm along axis 2 
-np.linalg.norm(data_points [:, np.newaxis] - centers_init, axis=2)
-
-centers, labels = k_means(data_points, centers_init, n_clusters=2, max_iterations=100, tol=1e-4)
-print("Converged centers :", centers)
-print("cluster Labels :", labels)
+  return C, labels, distances

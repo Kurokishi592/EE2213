@@ -9,6 +9,7 @@ from MultinomialLogisticRegression import multinomial_logistic_regression
 from OneHotLinearClassification import onehot_linearclassification
 from pearson_correlation import pearson_correlation
 from GradientDescent import GradientDescent
+from ProjectedGradientDescent import SimpleProjectedGradientDescent
 from bfs import bfs
 from bfs import bfs_path
 from dfs import dfs
@@ -135,10 +136,80 @@ heuristics = {  # if not coord but direct heuristic values for each node (e.g., 
 
 
 '''
-cvxpy solver for linear programming 
-- go to LP_cvxpy_solver.py for more than two decision variables and run there.
-- go to LP_2var_graph.ipynb for graphical method with two decision variables and run there.
+linear programming and convex problems 
+- go to cvxpy_solver.py to solve any convex problem and run there.
+- go to LP_2var_graph.py for graphical method with two decision variables (linear) and run there.
 '''
+
+
+'''
+perform gradient descent (for multivariable functions) and unconstrained and differentiable convex
+GradientDescent(f, f_prime, initial, learning_rate, num_iters)
+    use lambda functions for f and f_prime, parameters: function (xyz: [0] refers to x, [1] refers to y, [2] refers to z ...)
+    initial: initial values of all variables as a tuple
+    [0]: steps at each iteration
+    [1]: function values at each iteration
+    [2]: gradient vectors at each iteration
+if multiple variables, put PARTIAL derivative of each variable in f_prime return tuple (now optional)
+(x,y,z) => (df/dx, df/dy, df/dz)
+
+not as good, but can also go to gradient_descent_int to try with pytorch tensors for automatic differentiation
+'''
+learning_rate = 0.1
+num_iters = 3
+
+print("Values of parameters at each step (first row is initial values, 2nd row first iter, post 1st gradient step): \n")
+print(GradientDescent(lambda xy:((xy[0]-1)**2 + (xy[1]-2)**2), None, (0,0), learning_rate, num_iters)[0], "\n")
+print("Function values at each step, first row uses init, 2nd row first iter, post 1st gradient step: \n")
+print(GradientDescent(lambda xy:((xy[0]-1)**2 + (xy[1]-2)**2), None, (0,0), learning_rate, num_iters)[1], "\n")
+print("Gradient vectors (partial derivatives) at each step (first row considered first iter, uses init): \n")
+print(GradientDescent(lambda xy:((xy[0]-1)**2 + (xy[1]-2)**2), None, (0,0), learning_rate, num_iters)[2], "\n")
+
+# print("Values of parameters at each step (first row is initial values): \n")
+# print(GradientDescent(lambda b:np.sin(np.exp(b))**2, None, 6, learning_rate, num_iters)[0], "\n")
+# print("Function values at each step: \n")
+# print(GradientDescent(lambda b:np.sin(np.exp(b))**2, None, 6, learning_rate, num_iters)[1], "\n")
+# print("Gradient vectors (partial derivatives) at each step: \n")
+# print(GradientDescent(lambda b:np.sin(np.exp(b))**2, None, 6, learning_rate, num_iters)[2], "\n")
+
+# print("Values of parameters at each step (first row is initial values): \n")
+# print(GradientDescent(lambda x:4*x**3, None, 2, learning_rate, num_iters)[0], "\n")
+# print("Function values at each step: \n")
+# print(GradientDescent(lambda x:4*x**3, None, 2, learning_rate, num_iters)[1], "\n")
+# print("Gradient vectors (partial derivatives) at each step: \n")
+# print(GradientDescent(lambda x:4*x**3, None, 2, learning_rate, num_iters)[2], "\n")
+
+'''
+Projected Gradient Descent for constrained but differentiable convex
+    # Minimize (x-1)^2 + (y-2)^2 subject to x >= 0, y >= 0, x + y <= 2
+    pgd_constraints = [([-1,0],0), ([0,-1],0), ([1,1],2)]  # a^T x <= b forms
+    print("Projected Gradient Descent (with linear constraints) iteration log:\n")
+    pgd_steps, pgd_vals, pgd_grads, pgd_proj, pgd_cvals = SimpleProjectedGradientDescent(
+        lambda v: (v[0]-1)**2 + (v[1]-2)**2,
+        pgd_constraints,
+        initial=[3.0,-1.0],
+        learning_rate=0.15,
+        num_iters=5,
+        verbose=True
+    )
+'''
+pgd_constraints = [
+    (1, 0, '>=', 0),   # x >= 0
+    # (0, 1, '>=', 0),   # y >= 0
+    # (1, 1, '<=', 2)    # x + y <= 2
+]
+# print("Projected Gradient Descent iteration log:\n")
+# pgd_steps, pgd_vals, pgd_grads, pgd_proj, pgd_cvals = SimpleProjectedGradientDescent(
+#     lambda x: ((x[0]-2)**2), # g(x) = (x-2)^2
+#     pgd_constraints,
+#     initial=[-1.0], # x0 = -1
+#     learning_rate=0.15,
+#     num_iters=5,
+#     verbose=True
+# )
+# print("PGD Steps:\n", pgd_steps)
+# print("PGD Objective values:\n", pgd_vals)
+# print("PGD Constraint dot products per step (a_i^T x):\n", pgd_cvals)
 
 
 ''' 
@@ -176,9 +247,9 @@ X_test=np.array(
     [[7, 10, 1]
     ]
 )
-
 X_fitted=np.hstack((np.ones((len(X),1)),X))
 X_test_fitted=np.hstack((np.ones((len(X_test),1)),X_test))
+
 # linear_regression(X_fitted,Y, X_test_fitted)
 # polynomial_regression(X,Y,order=3,X_test=X_test) #order=1 is linear regression
 # polynomial_regression_with_classification(X, Y, order=1, X_test=X_test) #use this if linear regression with classification needed
@@ -204,47 +275,4 @@ used for feature selection, to see which X features have high correlation with Y
     k and c are magic numbers decided outside of this function
 '''
 # pearson_correlation(X,Y)
-
-
-'''
-perform gradient descent (for multivariable functions)
-GradientDescent(f, f_prime, initial, learning_rate, num_iters)
-    use lambda functions for f and f_prime, parameters: function (xyz: [0] refers to x, [1] refers to y, [2] refers to z ...)
-    initial: initial values of all variables as a tuple
-    [0]: steps at each iteration
-    [1]: function values at each iteration
-    [2]: gradient vectors at each iteration
-if multiple variables, put PARTIAL derivative of each variable in f_prime return tuple (now optional)
-(x,y,z) => (df/dx, df/dy, df/dz)
-
-not as good, but can also go to gradient_descent_int to try with pytorch tensors for automatic differentiation
-'''
-learning_rate = 0.01
-num_iters = 3
-
-# print("Values of parameters at each step (first row is initial values): \n")
-# print(GradientDescent(lambda xy:xy[0]**2 + xy[0]*xy[1]**2, None, (3,2), learning_rate, num_iters)[0], "\n")
-# print("Function values at each step: \n")
-# print(GradientDescent(lambda xy:xy[0]**2 + xy[0]*xy[1]**2, None, (3,2), learning_rate, num_iters)[1], "\n")
-# print("Gradient vectors (partial derivatives) at each step: \n")
-# print(GradientDescent(lambda xy:xy[0]**2 + xy[0]*xy[1]**2, None, (3,2), learning_rate, num_iters)[2], "\n")
-
-# print("Values of parameters at each step (first row is initial values): \n")
-# print(GradientDescent(lambda b:np.sin(np.exp(b))**2, None, 6, learning_rate, num_iters)[0], "\n")
-# print("Function values at each step: \n")
-# print(GradientDescent(lambda b:np.sin(np.exp(b))**2, None, 6, learning_rate, num_iters)[1], "\n")
-# print("Gradient vectors (partial derivatives) at each step: \n")
-# print(GradientDescent(lambda b:np.sin(np.exp(b))**2, None, 6, learning_rate, num_iters)[2], "\n")
-
-# print("Values of parameters at each step (first row is initial values): \n")
-# print(GradientDescent(lambda x:4*x**3, None, 2, learning_rate, num_iters)[0], "\n")
-# print("Function values at each step: \n")
-# print(GradientDescent(lambda x:4*x**3, None, 2, learning_rate, num_iters)[1], "\n")
-# print("Gradient vectors (partial derivatives) at each step: \n")
-# print(GradientDescent(lambda x:4*x**3, None, 2, learning_rate, num_iters)[2], "\n")
-
-
-
-
-
 

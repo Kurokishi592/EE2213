@@ -401,14 +401,16 @@ if __name__ == '__main__':
     # for function z = ax + by; objective = (a, b)
     # Sense: 'max' or 'min'
     # Subject to: (a, b, operator, constraint value) e.g. x <= 6 is (1, 0, '<=', 6)
-    objective = (2, 1)
+    objective = (40, 30)
     sense = 'max'
     constraints = [ # (a, b, op, rhs)
-        (1, 0, '>=', 0),
-        (0, 1, '>=', 0),
-        (1, -1, '>=', 1),
-        (1, 1, '>=', 3)
+        (1, 0, '>=', 0), # x >= 0
+        (0, 1, '>=', 0), # y >= 0
+        (0, 1, '>=', 10),
+        (2, 1, '<=', 100),
+        (1, 1, '<=', 40)
     ]
     solve_lp_2var(objective, sense, constraints, nonneg=False, plot=True)
+    # after getting the optimal sol (x,y val), plug back into original objective to get optimal objective value
     # rmb as long as there is green region, there is feasible region
     # an unbounded feasible region does not mean LP is unbounded, depends on objective direction

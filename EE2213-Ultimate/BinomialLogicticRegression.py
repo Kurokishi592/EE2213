@@ -1,7 +1,7 @@
-def logistic_regression(X, y, X_test, w, learning_rate, num_iters):
+def logistic_regression(X, y, X_test, w, learning_rate, num_iters, binary_threshold=0.5):
     import numpy as np
     from sklearn.preprocessing import PolynomialFeatures
-    from sklearn.metrics import confusion_matrix, accuracy_score
+    from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
     from matplotlib import pyplot as plt
     
     # step 0: prepare data
@@ -10,10 +10,14 @@ def logistic_regression(X, y, X_test, w, learning_rate, num_iters):
 
     # step 1: learning
     pred_y, cost, gradient = logistic_cost_gradient(P, w, y)
-    print('Initial Cost =', cost)
-    print('Initial Gradient =', gradient)
-    print('Initial Weights =', w)
-
+    # Allow scientific notation for very small numbers
+    np.set_printoptions(precision=4, suppress=False)
+    def _fmt_scalar(val):
+        return f"{val:.4e}" if (val != 0 and abs(val) < 1e-4) else f"{val:.4f}"
+    print('Initial Cost =', _fmt_scalar(cost))
+    print('Initial Gradient =\n', gradient)
+    print('Initial Weights =\n', w)
+    print("")
     cost_vec = np.zeros(num_iters+1) # Creates a 1D NumPy array filled with zeros
     cost_vec[0] = cost
 
@@ -27,19 +31,37 @@ def logistic_regression(X, y, X_test, w, learning_rate, num_iters):
         cost_vec[i] = cost
 
         if(i % 1000 == 0):
-            print('Iter', i, ': cost =', cost)
+            print('Iter', i, ': cost =', _fmt_scalar(cost))
         if(i<3):
-            print('Iter', i, ': cost =', cost)
-            print('Gradient =', gradient)
-            print('Weights =', w)
+            print('Iter', i, ': cost =', _fmt_scalar(cost))
+            print('Gradient =\n', gradient)
+            print('Weights =\n', w)
+            print("")
 
-    print('Final Cost =', cost)
-    print('Final Weights =', w)
-    print("y_pred is: " + str(pred_y))
-    
-    # print("Confusion Matrix (rows: actual class, columns: predicted class. Diagonal are correct predictions):")
-    # print(confusion_matrix(y, pred_y))
-    # print("Accuracy:", accuracy_score(y, pred_y))
+    print('Final Cost =', _fmt_scalar(cost))
+    print('Final Weights =\n', w)
+    print("")
+
+    # Training predictions
+    y_pred_classes = (pred_y >= binary_threshold).astype(int)
+    print("y_pred_prob (P(class=1)) is: \n" + str(pred_y))
+    print("y_pred_classes (zero-based 0/1): \n" + str(y_pred_classes))
+    print("")
+
+    # Evaluation metrics (train set)
+    # y expected shape (n,1) with 0/1 labels; flatten for metrics
+    y_true_flat = y.ravel()
+    y_pred_flat = y_pred_classes.ravel()
+    cm = confusion_matrix(y_true_flat, y_pred_flat)
+    acc = accuracy_score(y_true_flat, y_pred_flat)
+    prec = precision_score(y_true_flat, y_pred_flat, zero_division=0)
+    rec = recall_score(y_true_flat, y_pred_flat, zero_division=0)
+    f1 = f1_score(y_true_flat, y_pred_flat, zero_division=0)
+    print("Train Confusion Matrix:\n" + str(cm))
+    print("Train Accuracy:" , _fmt_scalar(acc))
+    print("Train Precision:" , _fmt_scalar(prec))
+    print("Train Recall:" , _fmt_scalar(rec))
+    print("Train F1:" , _fmt_scalar(f1))
 
     # Plot cost function values over iterations (uncomment to see the plot)
     # plt.figure(0, figsize=[9,4.5])
@@ -53,10 +75,15 @@ def logistic_regression(X, y, X_test, w, learning_rate, num_iters):
     #step 2: prediction
     X_test = poly.transform(X_test)   # use same feature mapping
     z = X_test @ w
-    y_test = 1/(1+np.exp(-z)) #signoid function
+    y_test = 1/(1+np.exp(-z)) # sigmoid function
     print("")
     print("z: " + str(z))
-    print("y_test: " + str(y_test))
+    y_test_classes = (y_test >= binary_threshold).astype(int)
+    print("y_test_prob (P(class=1)): " + str(y_test))
+    print("y_test_classes (zero-based 0/1): " + str(y_test_classes))
+
+    # Test metrics (if ground truth y_test available user can compute externally; here only predictions returned)
+    # Return unchanged signature w, y_test
     
     return w, y_test
 

@@ -158,12 +158,12 @@ not as good, but can also go to gradient_descent_int to try with pytorch tensors
 learning_rate = 0.1
 num_iters = 3
 
-print("Values of parameters at each step (first row is initial values, 2nd row first iter, post 1st gradient step): \n")
-print(GradientDescent(lambda xy:((xy[0]-1)**2 + (xy[1]-2)**2), None, (0,0), learning_rate, num_iters)[0], "\n")
-print("Function values at each step, first row uses init, 2nd row first iter, post 1st gradient step: \n")
-print(GradientDescent(lambda xy:((xy[0]-1)**2 + (xy[1]-2)**2), None, (0,0), learning_rate, num_iters)[1], "\n")
-print("Gradient vectors (partial derivatives) at each step (first row considered first iter, uses init): \n")
-print(GradientDescent(lambda xy:((xy[0]-1)**2 + (xy[1]-2)**2), None, (0,0), learning_rate, num_iters)[2], "\n")
+# print("Values of parameters at each step (first row is initial values, 2nd row first iter, post 1st gradient step): \n")
+# print(GradientDescent(lambda xy:((xy[0]-1)**2 + (xy[1]-2)**2), None, (0,0), learning_rate, num_iters)[0], "\n")
+# print("Function values at each step, first row uses init, 2nd row first iter, post 1st gradient step: \n")
+# print(GradientDescent(lambda xy:((xy[0]-1)**2 + (xy[1]-2)**2), None, (0,0), learning_rate, num_iters)[1], "\n")
+# print("Gradient vectors (partial derivatives) at each step (first row considered first iter, uses init): \n")
+# print(GradientDescent(lambda xy:((xy[0]-1)**2 + (xy[1]-2)**2), None, (0,0), learning_rate, num_iters)[2], "\n")
 
 # print("Values of parameters at each step (first row is initial values): \n")
 # print(GradientDescent(lambda b:np.sin(np.exp(b))**2, None, 6, learning_rate, num_iters)[0], "\n")
@@ -217,55 +217,72 @@ no need to add column of 1s to X for regression. X_fitted does it already. First
 for correlation, row is sample, column is feature. (only use training set) Comparing each feature column to one target Y 
 '''
 X=np.array(
-    [[0.5, 1.2, -0.3],
-     [-1, 0.8, 1.5],
-     [2.3, -0.7, 0.5],
-     [0, 1.5, -1.0]
+    [[-1],
+     [0],
+     [0.5],
+     [0.3],
+     [0.8]
    ]
 );
 
-# for one hot encoding (e.g. for multinomial logistic regression), simply type the class number 1, 2, 3...etc
-# for binary logistic regression, assign label 1 to the class in interest
-# the code will convert to onehot encoding internally
-''' 
-for multi-class classification (poly, ridge, ridgepoly), manually key in the onehot encoding: class 0 = [1, 0, 0], class 1 = [0, 1, 0], class 2 = [0, 0, 1] ...
-    only the function "onehot_linear" has auto one hot encoding, simply type the class number 0, 1, 2 ...etc 
-    this code's argmax starts from class 0 not 1. 
-for binary, all functions are the same, key in -1 or 1 will do.
+
+'''
+for binary logistic regression, assign label 1 to the class in interest
+for binary classification, all functions are the same, key in -1 or 1 will do.
+for multi-class classification only onehot and multi logistic has one hot (0, 1, 2), the rest need manual one hot
 for correlation, row is samples. should be comparing to one target only so only 1 column
 '''
 Y=np.array(
     [[1],
-     [2],
-     [3],
-     [1]
+     [1],
+     [0],
+     [1],
+     [0]
      ]
 );
 
 ''' same dont add one column of 1s to X_test for regression'''
 X_test=np.array(
-    [[7, 10, 1]
+    [[-0.1]
     ]
 )
+
+''' only for linear, since for poly, the code will add the bias term internally (PolynomialFeatures from sklearn)'''
 X_fitted=np.hstack((np.ones((len(X),1)),X))
 X_test_fitted=np.hstack((np.ones((len(X_test),1)),X_test))
 
+''' first is used for regression task, or binary classification task, for custom binary threshold, use poly order=1'''
+''' other is used for multi-category classification task (auto one hot, key in 0, 1, 2 ... for y) '''
 # linear_regression(X_fitted,Y, X_test_fitted)
-# polynomial_regression(X,Y,order=3,X_test=X_test) #order=1 is linear regression
-# polynomial_regression_with_classification(X, Y, order=1, X_test=X_test) #use this if linear regression with classification needed
-# ridge_regression(X_fitted,Y,LAMBDA=0.1, X_test=X_test_fitted, form='auto') #linear model
-# ridge_poly_regression(X, Y, LAMBDA=1, order=2, form='auto', X_test=X_test)
+# onehot_linearclassification(X_fitted,Y,X_test_fitted)
 
+'''
+used for regression tasks, binary classification (can key in a float for binary threshold, default 0)
+and multi-category classification tasks (manually one hot encode y for multi-category class 0 = [1, 0, 0], class 1 = [0, 1, 0], class 2 = [0, 0, 1] ...)
+    also, bias are auto in this order for poly fit by sklearn
+        (for poly order 3) Bias (1) x1 x2 x1^2 x1*x2 x2^2     x1^3 x1^2*x2 x1*x2^2 x2^3
+    but in lecture/tutorial, it may be
+        (for poly order 2) Bias (1) x1 x2 x1*x2 x1^2 x2^2
+    so read qn carefuly may need to reorder rows of w if they ask for it (and watch P's columns) accordingly
+'''
+# polynomial_regression(X, Y, order=1, X_test=X_test, binary_threshold=None) #order=1 is linear regression
+# ridge_regression(X_fitted,Y,LAMBDA=0.1, X_test=X_test_fitted, binary_threshold=None) #linear model
+# ridge_poly_regression(X, Y, LAMBDA=1, order=1, X_test=X_test, binary_threshold=None)
+
+'''
+used for classification tasks only, one for binary logistic regression, one for multinomial logistic regression
+- uses sigmoid and softmax function which is now about probability estimation
+- for binary, use 1 to label the class in interest, other class use 0
+- for multi-class, use (auto-one hot) 0, 1, 2 ...etc for classes
+- uses gradient descent to train weights because CCE and LCE is not closed form
+'''
 w_initial = np.array(
-    [[0, 0, 0], 
-     [0.01, -0.02, 0.03],
-     [0.05, 0.04, -0.01],
-     [-0.03, 0.02, 0.01]
+    [[0.1],
+     [-1]
     ]
 )
-# logistic_regression(X, Y, X_test, w_initial, learning_rate=0.1, num_iters=10000)
-# multinomial_logistic_regression(X, Y, X_test, w_initial, learning_rate=0.1, num_iters=10000)
-# onehot_linearclassification(X_fitted,Y,X_test_fitted)
+logistic_regression(X, Y, X_test, w_initial, learning_rate=0.1, num_iters=10000, binary_threshold=0.5)
+# multinomial_logistic_regression(X, Y, X_test, w_initial, learning_rate=0.5, num_iters=10000)
 
 
 '''

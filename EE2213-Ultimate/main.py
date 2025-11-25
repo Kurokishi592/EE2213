@@ -1,17 +1,3 @@
-from EnterMetrics import EnterMetrics
-from LinearRegression import linear_regression
-from PolynomialRegression import polynomial_regression
-from PolyRegressionClassification import polynomial_regression_with_classification
-from RidgePolynomialRegression import ridge_poly_regression
-from RidgeRegression import ridge_regression
-from BinomialLogicticRegression import logistic_regression
-from MultinomialLogisticRegression import multinomial_logistic_regression
-from OneHotLinearClassification import onehot_linearclassification
-from pearson_correlation import pearson_correlation
-from GradientDescent import GradientDescent
-from ProjectedGradientDescent import SimpleProjectedGradientDescent
-from k_means_cluster import custom_kmeans
-from fuzzy_cmeans import fuzzy_Cmeans
 from bfs import bfs
 from bfs import bfs_path
 from dfs import dfs
@@ -33,9 +19,24 @@ from a_star import (
     a_star_tree_l1,
     a_star_tree_l2,
 )
+# go to cvxpy_solver.py to solve any convex problem and run there.
+# go to LP_2var_graph.py for graphical method with two decision variables (linear) and run there.
+from GradientDescent import GradientDescent
+from ProjectedGradientDescent import SimpleProjectedGradientDescent
+from LinearRegression import linear_regression
+from PolynomialRegression import polynomial_regression
+from PolyRegressionClassification import polynomial_regression_with_classification
+from RidgePolynomialRegression import ridge_poly_regression
+from RidgeRegression import ridge_regression
+from BinomialLogicticRegression import logistic_regression
+from MultinomialLogisticRegression import multinomial_logistic_regression
+from OneHotLinearClassification import onehot_linearclassification
+from pearson_correlation import pearson_correlation
+from k_means_cluster import custom_kmeans
+from fuzzy_cmeans import fuzzy_Cmeans
+# Use MultilayerPerceptron(MLP).py directly for flexible MLP
+# go to wumpus_world_agent.py to run the wumpus world agent simulation.
 import numpy as np
-from sklearn.metrics import mean_squared_error
-from EnterMetrics import EnterMetrics
 
 '''  
 uninformed unweighted search algorithms (BFS, DFS)
@@ -333,5 +334,10 @@ multi-layer perceptron (MLP) neural network
 - softmax is commonly used for the output layer in classification tasks to produce probability distributions, which sums to 1, positive values.
 - linear activation is used for regression tasks to allow unbounded output values.
 - sigmoid activation is used for binary classification tasks to produce probabilities between 0 and 1.
+'''
+
+'''
+Wumpus agent
+- go to wumpus_world_agent.py to run the wumpus world agent simulation.
 '''
 

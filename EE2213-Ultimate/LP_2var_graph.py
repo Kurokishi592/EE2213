@@ -395,20 +395,21 @@ def _plot_lp(objective, sense, constraints, nonneg, vertices, status, opt_val, o
     plt.show()
 
 # ---------------------------------------------------------------
-# Example usage (can be removed or commented out in production)
+# Example usage 
 # ---------------------------------------------------------------
 if __name__ == '__main__':
     # for function z = ax + by; objective = (a, b)
     # Sense: 'max' or 'min'
     # Subject to: (a, b, operator, constraint value) e.g. x <= 6 is (1, 0, '<=', 6)
-    objective = (40, 30)
-    sense = 'max'
+    objective = (3, 2)
+    sense = 'min'
     constraints = [ # (a, b, op, rhs)
         (1, 0, '>=', 0), # x >= 0
         (0, 1, '>=', 0), # y >= 0
-        (0, 1, '>=', 10),
-        (2, 1, '<=', 100),
-        (1, 1, '<=', 40)
+        (1, 1, '<=', 5),
+        (-1, 2, '<=', 4),
+        (1, -1, '<=', 3),
+        (2, 1, '>=', 12)
     ]
     solve_lp_2var(objective, sense, constraints, nonneg=False, plot=True)
     # after getting the optimal sol (x,y val), plug back into original objective to get optimal objective value

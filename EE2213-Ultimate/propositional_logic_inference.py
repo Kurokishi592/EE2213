@@ -5,20 +5,51 @@ import sys
 Knowledge Base Logic and Query Setup
 '''
 # Propositional symbols
-A, B, C = symbols('A B C')  # A: Alex is a Knight, B: Ben is a Knight, C: Chloe is a Knight
+A, B, C= symbols('A B C')  # A: Alex is a Knight, B: Ben is a Knight, C: Chloe is a Knight
 
-# # Define the statements
-statement_A = Or(A, B)
-statement_B = Or(Not(B), C)
-statement_C = Not(C)
-# statement_A = Equivalent(A, Not(C))  # A says "B is a Knave"
-# statement_B = Equivalent(B, A)  # B says "We are both Knights"
-# statement_C = Equivalent(C)
+# # Define the statements (Operator Precedence is important! () > ~ > & > | > Implies > Equivalent)
+# if no brackets used e.g. P | Q & R should write Or(And(Q, R), P) to simulate the precedence
+# another e.g. P∧ 𝑄 ⟺ ¬ 𝑄 ∨ R is Equivalent(Or(Not(B),C), And(A,B)) highest precedence is innermost
+# XOR(A,B) is And(Or(A,B), Not(And(A,B)))
 
-query = A # does KB entail A?
+# statement_A = Equivalent(A, B)
+# statement_B = Implies(Not(A), And(Not(B), C))
+# statement_C = Implies(And(Or(B,C), Not(And(B,C))), D)
+# statement_D = Implies (D, A)
+
+statement_A = Equivalent(A, Implies(B, Not(C)))  # Alice says "if Bob tells the truth, then Carol lies"
+statement_B = Equivalent(B, And(Or(A,C), Not(And(A,C))))  # Bob says "Either Alice or Carol tells the truth (not both)"
+statement_C = Equivalent(C, Not(A))  # Carol says "Alice lies"
 
 # Knowledge Base (KB)
-KB = And(statement_A, statement_B, statement_C)
+KB = And(statement_A, statement_B, statement_C)#, statement_D)
+
+query = A
+
+''' If not running any specific, use this to do quick checks
+Used for multiple queries at once or check entailment or equivalence A |= B AND B |= A '''
+def Entails(KB_AND, query):
+    entails = not satisfiable(And(KB_AND, Not(query)))
+    if entails:
+       print(query, "is definitely true.")
+    else:
+        entails_not = not satisfiable(And(KB_AND, query))
+        if entails_not:
+            print(query, "is definitely false.")
+        else:
+            print(query,"is uncertain.")
+
+# This checks equivalence by mutual entailment
+# Entails(Not(Or(A, And(B, Not(C)))), Or(And(Not(A), Not(B)), And(Not(A), C))) # can check entailment of left to right
+# Entails(Or(And(Not(A), Not(B)), And(Not(A), C)), Not(Or(A, And(B, Not(C)))))
+
+# this checks multiple queries at once
+# Entails(KB, A)
+# Entails(KB, B)
+# Entails(KB, C)
+# Entails(KB, D)
+
+print("")
 
 # --- Formatting utilities for symbolic logic output ---
 def _supports_unicode(chars='¬∧∨→↔'):
@@ -56,6 +87,7 @@ print("Knowledge Base (KB) statements:")
 print("  1.", fmt(statement_A))
 print("  2.", fmt(statement_B))
 print("  3.", fmt(statement_C))
+# print("  4.", fmt(statement_D))
 print("KB (conjunction):", fmt(KB), "\n")
 
 '''
@@ -66,7 +98,7 @@ Method 1: Model Checking Algorithm
 from sympy.logic.boolalg import truth_table
 
 # Generate truth table for KB
-print("Truth table (models of A,B,C and KB evaluation):")
+print("Truth table (models of A,B,C,D and KB evaluation):")
 for assignment, Truth_value in truth_table(KB, [A, B, C]):
     a_val, b_val, c_val = assignment
     print(f"  A={a_val} B={b_val} C={c_val} | KB={Truth_value}")
@@ -212,13 +244,14 @@ def resolution_trace(expr, max_iterations=200):
     print("[Resolution] Iteration cap reached without empty clause ⇒ entailment fails.")
     return False
 
-print("\n=== Resolution Trace ===")
-res_success = resolution_trace(And(KB, Not(query)))
-res_result = "Query entailed (True) via resolution trace" if res_success else "Query not entailed via resolution trace"
-print("\nResolution trace result:")
-print("  ", res_result)
+# print("\n=== Resolution Trace ===")
+# res_success = resolution_trace(And(KB, Not(query)))
+# res_result = "Query entailed (True) via resolution trace" if res_success else "Query not entailed via resolution trace"
+# print("\nResolution trace result:")
+# print("  ", res_result)
 
 print("\nAll methods comparison:")
 print(f"  Enumeration : {enum_result}")
 print(f"  Satisfiable : {sat_result}")
-print(f"  Resolution  : {res_result}")
+# print(f"  Resolution  : {res_result}")
+

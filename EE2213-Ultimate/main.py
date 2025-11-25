@@ -49,14 +49,14 @@ uninformed unweighted search algorithms (BFS, DFS)
 '''
 unweighted_graph = { # if undirected, each edge stored twice
     'A': ['B', 'C'],
-    'B': ['A', 'D', 'E'],
-    'C': ['A', 'F'],
-    'D': ['B', 'G'],
-    'E': ['B', 'G', 'H'],
-    'F': ['C', 'H'],
-    'G': ['D', 'E', 'S'],
-    'H': ['E', 'F', 'S'],
-    'S': ['G', 'H']
+    'B': ['A', 'F'],
+    'C': ['A', 'D', 'E'],
+    'D': ['C'],
+    'E': ['C'],
+    'F': ['B'],
+    # 'G': ['D'],
+    # 'H': ['E', 'F', 'S'],
+    # 'S': ['G', 'H']
 }
 
 # visit_sequence = bfs(unweighted_graph, 'A')
@@ -96,12 +96,12 @@ for _ in range(m):
     graph[v].append((u, w))   # if undirected
 '''
 weighted_graph = { # if undirected, each edge stored twice. If no weights (GBFS), put dummy weights
-    'S': {'A': 4, 'C':6,'D':3},
-    'A': {'G': 6},
-    'B': {'G':1},
-    'C': {'D':2,'B':3,'G':3},
-    'D': {'B':4},
-    'G': {}
+    'S': {'A': 1, 'B':2},
+    'A': {'S':1, 'G': 4, 'C':2},
+    'B': {'S':2, 'C':5},
+    'C': {'A':2,'B':5,'G':1},
+    # 'D': {'B':4},
+    'G': {'A':4,'C':1}
 }
 coords = { # [x, y] coordinates for each node, can do [x] only for 1D
     'S': [0, 0],
@@ -111,23 +111,30 @@ coords = { # [x, y] coordinates for each node, can do [x] only for 1D
     'G': [4, 0]
 }
 heuristics = {  # if not coord but direct heuristic values for each node (e.g., straight-line distance to goal)
-    'S': 7.0,
-    'A': 6.0,
-    'B': 2.0,
-    'C': 1.0,
+    'S': 6.0,
+    'A': 5.0,
+    'B': 3.0,
+    'C': 2.0,
     'G': 0.0
 }
 
 # result = dijkstra(weighted_graph, 'S') # any but graphs with negative weights
-# for node in result: # Print shortest distances from the source to all other nodes
+# for node in result:
+#     if node == '_pop_order':
+#         continue  # skip meta entry
 #     dist = result[node]['dist']
-#     path = result[node]['prev'] + [node] # build the final path
+#     path = result[node]['prev'] + [node]  # build the final path
 #     print("Shortest Distance to", node, ":", dist)
 #     print("Shortest Path to", node, ":", path)
+# print("Dijkstra pop (finalization) order:", result.get('_pop_order', []))
 
-# greedy_direct = greedy_best_first_raw(weighted_graph, 'S', 'G', heuristics=heuristics, verbose=True)
-# greedy_l1 = greedy_best_first_l1(weighted_graph, 'S', 'G', coords=coords, verbose=True)
-# greedy_l2 = greedy_best_first_l2(weighted_graph, 'S', 'G', coords=coords, verbose=True)
+# greedy_tree_direct = greedy_best_first_raw(weighted_graph, 'S', 'G', heuristics=heuristics, verbose=True, tree_search=True)
+# greedy_tree_l1 = greedy_best_first_l1(weighted_graph, 'S', 'G', coords=coords, verbose=True, tree_search=True)
+# greedy_tree_l2 = greedy_best_first_l2(weighted_graph, 'S', 'G', coords=coords, verbose=True, tree_search=True)
+
+# greedy_graph_direct = greedy_best_first_raw(weighted_graph, 'S', 'G', heuristics=heuristics, verbose=True, tree_search=False)
+# greedy_graph_l1 = greedy_best_first_l1(weighted_graph, 'S', 'G', coords=coords, verbose=True, tree_search=False)
+# greedy_graph_l2 = greedy_best_first_l2(weighted_graph, 'S', 'G', coords=coords, verbose=True, tree_search=False)
 
 # astar_graph_direct = a_star_raw(weighted_graph, 'S', 'G', heuristics=heuristics, verbose=True)
 # astar_graph_l1 = a_star_l1(weighted_graph, 'S', 'G', coords=coords, verbose=True)
@@ -158,8 +165,8 @@ if multiple variables, put PARTIAL derivative of each variable in f_prime return
 
 not as good, but can also go to gradient_descent_int to try with pytorch tensors for automatic differentiation
 '''
-learning_rate = 0.1
-num_iters = 3
+learning_rate = 0.01
+num_iters = 2
 
 # print("Values of parameters at each step (first row is initial values, 2nd row first iter, post 1st gradient step): \n")
 # print(GradientDescent(lambda xy:((xy[0]-1)**2 + (xy[1]-2)**2), None, (0,0), learning_rate, num_iters)[0], "\n")
@@ -176,11 +183,11 @@ num_iters = 3
 # print(GradientDescent(lambda b:np.sin(np.exp(b))**2, None, 6, learning_rate, num_iters)[2], "\n")
 
 # print("Values of parameters at each step (first row is initial values): \n")
-# print(GradientDescent(lambda x:4*x**3, None, 2, learning_rate, num_iters)[0], "\n")
+# print(GradientDescent(lambda x:(x+2)**2+7, None, 4, learning_rate, num_iters)[0], "\n")
 # print("Function values at each step: \n")
-# print(GradientDescent(lambda x:4*x**3, None, 2, learning_rate, num_iters)[1], "\n")
+# print(GradientDescent(lambda x:(x+2)**2+7, None, 4, learning_rate, num_iters)[1], "\n")
 # print("Gradient vectors (partial derivatives) at each step: \n")
-# print(GradientDescent(lambda x:4*x**3, None, 2, learning_rate, num_iters)[2], "\n")
+# print(GradientDescent(lambda x:(x+2)**2+7, None, 4, learning_rate, num_iters)[2], "\n")
 
 '''
 Projected Gradient Descent for constrained but differentiable convex
@@ -220,33 +227,30 @@ no need to add column of 1s to X for regression. X_fitted does it already. First
 for correlation, row is sample, column is feature. (only use training set) Comparing each feature column to one target Y 
 '''
 X=np.array(
-    [[-1],
-     [0],
-     [0.5],
-     [0.3],
-     [0.8]
+    [[1.2, -0.4, 0.8],
+     [-0.6, 2.0, -0.5],
+     [0.3, -1.2, 1.7],
+     [2.1, 0.5, -0.8]
    ]
 );
-
 
 '''
 for binary logistic regression, assign label 1 to the class in interest
 for binary classification, all functions are the same, key in -1 or 1 will do.
-for multi-class classification only onehot and multi logistic has one hot (0, 1, 2), the rest need manual one hot
+for onehot multi and multi logistic has one hot (0, 1, 2), the rest need manual one hot for multi-class classification
 for correlation, row is samples. should be comparing to one target only so only 1 column
 '''
 Y=np.array(
-    [[1],
+    [[3],
      [1],
-     [0],
-     [1],
-     [0]
+     [2],
+     [3]
      ]
 );
 
 ''' same dont add one column of 1s to X_test for regression'''
 X_test=np.array(
-    [[-0.1]
+    [[4, 19, 80]
     ]
 )
 
@@ -268,9 +272,9 @@ and multi-category classification tasks (manually one hot encode y for multi-cat
         (for poly order 2) Bias (1) x1 x2 x1*x2 x1^2 x2^2
     so read qn carefuly may need to reorder rows of w if they ask for it (and watch P's columns) accordingly
 '''
-# polynomial_regression(X, Y, order=1, X_test=X_test, binary_threshold=None) #order=1 is linear regression
+# polynomial_regression(X, Y, order=2, X_test=X_test, binary_threshold=None) #order=1 is linear regression
 # ridge_regression(X_fitted,Y,LAMBDA=0.1, X_test=X_test_fitted, binary_threshold=None) #linear model
-# ridge_poly_regression(X, Y, LAMBDA=1, order=1, X_test=X_test, binary_threshold=None)
+# ridge_poly_regression(X, Y, LAMBDA=0.1, order=2, X_test=X_test, binary_threshold=None)
 
 '''
 used for classification tasks only, one for binary logistic regression, one for multinomial logistic regression
@@ -280,12 +284,14 @@ used for classification tasks only, one for binary logistic regression, one for 
 - uses gradient descent to train weights because CCE and LCE is not closed form
 '''
 w_initial = np.array(
-    [[0.1],
-     [-1]
+    [[0, 0, 0],
+     [0.02, -0.01, 0.03],
+     [-0.05, 0.04, 0.01],
+     [0.03, 0.02, -0.02]
     ]
 )
 # logistic_regression(X, Y, X_test, w_initial, learning_rate=0.1, num_iters=10000, binary_threshold=0.5)
-# multinomial_logistic_regression(X, Y, X_test, w_initial, learning_rate=0.5, num_iters=10000)
+multinomial_logistic_regression(X, Y, X_test, w_initial, learning_rate=0.1, num_iters=10000)
 
 
 '''

@@ -86,7 +86,7 @@ def binary_cross_entropy(pred, Y):
     return -np.mean(Y_flat * np.log(p) + (1 - Y_flat) * np.log(1 - p))
 
 class SimpleMLP:
-    def __init__(self, layer_sizes, activations, weights):
+    def __init__(self, layer_sizes, activations, weights, fmt_precision=8):
         """Initialize MLP with explicit user-supplied weights.
 
         layer_sizes: [n_in, h1, ..., n_out] (without bias terms)
@@ -107,11 +107,15 @@ class SimpleMLP:
         self.activations = activations
         self.weights = [W.astype(float).copy() for W in weights]
         self.history = {'loss': []}
-        # default formatting settings
-        self._fmt_precision = 6
+        # formatting settings (number of decimal places for verbose prints)
+        self._fmt_precision = int(fmt_precision)
+
+    def set_print_precision(self, precision):
+        """Update number of decimal places used in verbose matrix printing."""
+        self._fmt_precision = int(precision)
 
     @staticmethod
-    def _format_matrix(M, precision=6, indent='      '):
+    def _format_matrix(M, precision=8, indent='      '):
         """Return a string with columns padded to equal width.
         Uses fixed-point with given precision; falls back to scientific for very small values.
         """
@@ -252,32 +256,37 @@ class SimpleMLP:
 # ---------------- Usage Examples ----------------
 if __name__ == '__main__':
     
-    ''' lecture example slide 210'''
     # no need to pad with bias since input X already has bias column
     X_train = np.array([
-        [1, 3.0],
-        [2, 2.5]
+        [1.2, -0.4, 0.8],
+        [-0.6, 2.0, -0.5],
+        [0.3, -1.2, 1.7],
+        [2.1, 0.5, -0.8]
     ])
     # need to manually one-hot encode the labels
     Y_train = np.array([
-        [1, 0],
-        [0, 1]
+        [0, 0, 1],
+        [1, 0, 0],
+        [0, 1, 0],
+        [0, 0, 1]
     ])
     X_test = np.array([
-        [1, 1]
+        [1, 1, 1]
     ])
     # col is neuron i weights in current layer, row must include bias row, then no of samples/neurons from prev layer
     w1 = np.array([
-        [-1, 0],
-        [0, -1],
-        [1, 0]
+        [0, 0, 0],
+        [0.02, -0.01, 0.03],
+        [-0.05, 0.04, 0.01],
+        [0.03, 0.02, -0.02]
     ])
     w2 = w1.copy()
-    # mlp: f(x) = softmax([1, relu(X@w1)]@w2) : 1 n_in -> 1 hidden -> 1 n_out. Layer size all 2 (excludes bias)
-    # so 3 layers of 2 neurons each, hidden layer 1 with relu, output with softmax.
-    mlp = SimpleMLP(layer_sizes=[2, 2, 2], activations=['relu', 'softmax'], weights=[w1, w2])
+    # mlp: f(x) = softmax([1, relu(X@w1)]@w2) : 1 n_in -> 1 hidden -> 1 n_out. Layer size all 3 (excludes bias)
+    # so 3 layers of 3 neurons each, hidden layer 1 with relu, output with softmax.
+    # weights col = no of neurons in that layer. rows = bias + no of neurons in prev layer
+    mlp = SimpleMLP(layer_sizes=[3, 3, 3], activations=['relu', 'softmax'], weights=[w1, w2])
     # loss function is categorical cross entropy, and we want to see verbose output
-    mlp.train(X_train, Y_train, learning_rate=0.1, iters=2, loss='cross_entropy', verbose=True, X_test=X_test)
+    mlp.train(X_train, Y_train, learning_rate=0.1, iters=1, loss='cross_entropy', verbose=True, X_test=X_test)
     
     
     ''' Classification example '''

@@ -321,5 +321,11 @@ c3_init = np.array([22.0])
 centers_init = np.array([c1_init, c2_init, c3_init])
 
 # custom_kmeans(data_points, centers_init, n_clusters=3, max_iterations=100)
-
 # centers, W = fuzzy_Cmeans(data_points, centers_init, fuzzier=2, max_iterations=100, verbose=True)
+
+
+'''
+multi-layer perceptron (MLP) neural network
+- Use MultilayerPerceptron(MLP).py directly for flexible MLP. Read comments and example usage
+- Can refer to Activation_Functions.py and TwoLayerMLP for simpler versions
+'''

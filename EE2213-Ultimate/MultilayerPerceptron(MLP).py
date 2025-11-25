@@ -1,6 +1,10 @@
 import numpy as np
 """
 A minimal, general multi-layer perceptron implementation for classification or regression.
+- ReLU a nonlinear activation function is usually used for hidden layers to avoid vanishing gradients into linear regression. Only to learn features.
+- softmax is commonly used for the output layer in classification tasks to produce probability distributions, which sums to 1, positive values.
+- linear activation is used for regression tasks to allow unbounded output values.
+- sigmoid activation is used for binary classification tasks to produce probabilities between 0 and 1.
 
 Features:
 - Arbitrary number of layers (list of explicit user-supplied weight matrices).
@@ -270,6 +274,7 @@ if __name__ == '__main__':
     ])
     w2 = w1.copy()
     # mlp: f(x) = softmax([1, relu(X@w1)]@w2) : 1 n_in -> 1 hidden -> 1 n_out. Layer size all 2 (excludes bias)
+    # so 3 layers of 2 neurons each, hidden layer 1 with relu, output with softmax.
     mlp = SimpleMLP(layer_sizes=[2, 2, 2], activations=['relu', 'softmax'], weights=[w1, w2])
     # loss function is categorical cross entropy, and we want to see verbose output
     mlp.train(X_train, Y_train, learning_rate=0.1, iters=2, loss='cross_entropy', verbose=True, X_test=X_test)

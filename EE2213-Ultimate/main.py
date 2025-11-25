@@ -328,4 +328,10 @@ centers_init = np.array([c1_init, c2_init, c3_init])
 multi-layer perceptron (MLP) neural network
 - Use MultilayerPerceptron(MLP).py directly for flexible MLP. Read comments and example usage
 - Can refer to Activation_Functions.py and TwoLayerMLP for simpler versions
+
+- ReLU a nonlinear activation function is usually used for hidden layers to avoid vanishing gradients into linear regression. Only to learn features.
+- softmax is commonly used for the output layer in classification tasks to produce probability distributions, which sums to 1, positive values.
+- linear activation is used for regression tasks to allow unbounded output values.
+- sigmoid activation is used for binary classification tasks to produce probabilities between 0 and 1.
 '''
+

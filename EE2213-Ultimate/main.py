@@ -341,3 +341,11 @@ Wumpus agent
 - go to wumpus_world_agent.py to run the wumpus world agent simulation.
 '''
 
+'''
+Propositional Logic Inference
+- go to propositional_logic_inference.py to run the propositional logic inference 
+using model checking algorithm, , satisfiable, resolution algorithm.
+
+- go to prop_logic_forward_backward_chain.py to run forward and backward chaining on Horn clauses.
+only Modus Ponens is used (on Horn implications with a single positive head).
+'''

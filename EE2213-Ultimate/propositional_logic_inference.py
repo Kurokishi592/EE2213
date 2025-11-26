@@ -5,24 +5,28 @@ import sys
 Knowledge Base Logic and Query Setup
 '''
 # Propositional symbols
-A, B, C= symbols('A B C')  # A: Alex is a Knight, B: Ben is a Knight, C: Chloe is a Knight
+A, B, C, D, E= symbols('A B C D E')  # A: Alex is a Knight, B: Ben is a Knight, C: Chloe is a Knight
 
 # # Define the statements (Operator Precedence is important! () > ~ > & > | > Implies > Equivalent)
 # if no brackets used e.g. P | Q & R should write Or(And(Q, R), P) to simulate the precedence
 # another e.g. P∧ 𝑄 ⟺ ¬ 𝑄 ∨ R is Equivalent(Or(Not(B),C), And(A,B)) highest precedence is innermost
 # XOR(A,B) is And(Or(A,B), Not(And(A,B)))
 
-# statement_A = Equivalent(A, B)
+# statement_A = And(And(Implies(A, And(B,C)) , Or(A,C)) , Or(A,And(C,B)))
 # statement_B = Implies(Not(A), And(Not(B), C))
 # statement_C = Implies(And(Or(B,C), Not(And(B,C))), D)
 # statement_D = Implies (D, A)
 
-statement_A = Equivalent(A, Implies(B, Not(C)))  # Alice says "if Bob tells the truth, then Carol lies"
-statement_B = Equivalent(B, And(Or(A,C), Not(And(A,C))))  # Bob says "Either Alice or Carol tells the truth (not both)"
-statement_C = Equivalent(C, Not(A))  # Carol says "Alice lies"
+statement_A = B # A says B lies
+statement_B = Not(C)  # B says A and B tell the truth
+# statement_C
+
+# statement_A = Equivalent(A, Implies(B, Not(C)))  # Alice says "if Bob tells the truth, then Carol lies"
+# statement_B = Equivalent(B, And(Or(A,C), Not(And(A,C))))  # Bob says "Either Alice or Carol tells the truth (not both)"
+# statement_C = Equivalent(C, Not(A))  # Carol says "Alice lies"
 
 # Knowledge Base (KB)
-KB = And(statement_A, statement_B, statement_C)#, statement_D)
+KB = And(statement_A)#, statement_B, statement_C, statement_D)
 
 query = A
 
@@ -41,7 +45,9 @@ def Entails(KB_AND, query):
 
 # This checks equivalence by mutual entailment
 # Entails(Not(Or(A, And(B, Not(C)))), Or(And(Not(A), Not(B)), And(Not(A), C))) # can check entailment of left to right
-# Entails(Or(And(Not(A), Not(B)), And(Not(A), C)), Not(Or(A, And(B, Not(C)))))
+# Entails(And(A,B), Equivalent(A, B))
+# Entails(Implies(And(A,B), C), Or(Implies(A,C), Implies(B, C)))
+# Entails(And(Or(A,B), Or(Or(Not(C),Not(D)),E)) , And(Or(A,B), Or(Not(D), E)) )
 
 # this checks multiple queries at once
 # Entails(KB, A)
@@ -85,8 +91,8 @@ def fmt(expr):
 
 print("Knowledge Base (KB) statements:")
 print("  1.", fmt(statement_A))
-print("  2.", fmt(statement_B))
-print("  3.", fmt(statement_C))
+# print("  2.", fmt(statement_B))
+# print("  3.", fmt(statement_C))
 # print("  4.", fmt(statement_D))
 print("KB (conjunction):", fmt(KB), "\n")
 
@@ -100,8 +106,8 @@ from sympy.logic.boolalg import truth_table
 # Generate truth table for KB
 print("Truth table (models of A,B,C,D and KB evaluation):")
 for assignment, Truth_value in truth_table(KB, [A, B, C]):
-    a_val, b_val, c_val = assignment
-    print(f"  A={a_val} B={b_val} C={c_val} | KB={Truth_value}")
+    a_val, b_val, c_val= assignment
+    print(f"  A={a_val} B={b_val} C={c_val} | KB={Truth_value}") # C={c_val} D={d_val}
 
 # KB |= query iff there is NO model where KB is True and query is False.
 def entails_by_enumeration(alpha):

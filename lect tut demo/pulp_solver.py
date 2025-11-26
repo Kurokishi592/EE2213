@@ -7,29 +7,48 @@ from pulp import *  # PuLP: Python library for modeling linear programming probl
 prob = LpProblem("Maximize_Profit", LpMaximize)
 
 # Decision variables
-x_A = LpVariable("x_A", lowBound=0)   
-x_B = LpVariable("x_B", lowBound=0)   
+x1 = LpVariable("x_A", lowBound=0)   
+x2 = LpVariable("x_B", lowBound=0)   
+x3 = LpVariable("x_B", lowBound=0)   
+x4 = LpVariable("x_B", lowBound=0)   
+x5 = LpVariable("x_B", lowBound=0)   
 
 # Objective function: Maximize profit
-prob += 40 * x_A + 30 * x_B        # Total profit
+prob += 40*x1 + 75*x2 + 110*x3 + 140*x4 + 90*x5        # Total profit
 
 # Constraints
-prob += 2 * x_A + 1 * x_B <= 100   # Machine time
-prob += x_B >= 10                  # Minimum product B
-prob += x_A + x_B <= 40            # Production capacity
+
+prob +=x1 >= 0
+prob +=x2 >= 0
+prob +=x3 >= 0
+prob +=x4 >= 0
+prob +=x5 >= 0
+prob +=8*x1 + 18*x2 + 25*x3 + 35*x4 + 20*x5 <= 600 # wood
+prob +=4*x1 + 7*x2 + 10*x3 + 13*x4 + 8*x5 <= 250 # labour
+prob +=x1 + 3*x2 + 5*x3 + 6*x4 + 4*x5 <= 120 # assembly
+prob +=x1 >= 10
+prob +=x2 <= 15
+prob +=x3 + x4 + x5 >= 12
+prob +=2*x5 - x1 >= 0
 
 # Solve the LP problem
 prob.solve() 
 
 # Results
-xA_opt = value(x_A) # Get the optimal value of decision variable x_A
-xB_opt = value(x_B) # Get the optimal value of decision variable x_B
+xA_opt = value(x1) # Get the optimal value of decision variable x_A
+xB_opt = value(x2) # Get the optimal value of decision variable x_B
+xC_opt = value(x3)
+xD_opt = value(x4)
+xE_opt = value(x5)
 max_profit = value(prob.objective) # Get the maximum profit from the objective function
 
 # Output results
 print("Optimal number of units to produce:")
 print("Product A:", xA_opt)
 print("Product B:", xB_opt)
+print("Product B:", xC_opt)
+print("Product B:", xD_opt)
+print("Product B:", xE_opt)
 print("Maximum Profit: $", max_profit)
 
 

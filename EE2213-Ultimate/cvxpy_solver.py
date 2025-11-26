@@ -2,11 +2,11 @@ import cvxpy as cp # For solving any convex optimisation problems
 import numpy as np
 
 ''' 1. Define decision variables (cp.Variable(name="x", integer=True) by default. add boolean=True for binary variables only take 1 or 0)'''
-x1 = cp.Variable(name="product_1")
-x2 = cp.Variable(name="product_2")
-x3 = cp.Variable(name="product_3")
-x4 = cp.Variable(name="product_4")
-x5 = cp.Variable(name="product_5")
+x1 = cp.Variable(name="product_1", integer=True) # chairs
+x2 = cp.Variable(name="product_2", integer=True) # tables
+x3 = cp.Variable(name="product_3", integer=True) # desks
+x4 = cp.Variable(name="product_4", integer=True) # cabinet
+x5 = cp.Variable(name="product_5", integer=True) # bookcases
 
 # X = np.array([[1,0],
 #               [0,1],
@@ -22,26 +22,24 @@ x5 = cp.Variable(name="product_5")
 # x5 = cp.Variable(boolean=True, name='MA1512')
 
 ''' 2. Define the objective function (replace function or change to cp.Minimize/cp.Maximize as needed)'''
-objective = cp.Maximize(2*x1 - 3*x2 + x3)
+objective = cp.Maximize(40*x1 + 75*x2 + 110*x3 + 140*x4 + 90*x5)
 # objective = cp.Minimize(cp.sum_squares(X@w-y))  # example of least squares minimization
 # objective = cp.Maximize(9*x1 + 7*x2 + 8*x3 + 5*x4 + 6*x5)  # maximise benefit score tagged to each course
 
 ''' 3. Define constraints (replace as needed, use == for equality) - each var shld be constrained too. Usually >=0'''
 constraints = [
-    x1-x2+x3<=5,
-    x1-x2+4*x3<=7,
-    x1+2*x2-x3+x4<=14,
-    x3-x4+x5<=7,
-    x1 >= -15,
-    x2 >= -15,
-    x3 >= -15,
-    x4 >= -15,
-    x5 >= -15,
-    x1 <= 15,
+    x1 >= 0,
+    x2 >= 0,
+    x3 >= 0,
+    x4 >= 0,
+    x5 >= 0,
+    8*x1 + 18*x2 + 25*x3 + 35*x4 + 20*x5 <= 600, # wood
+    4*x1 + 7*x2 + 10*x3 + 13*x4 + 8*x5 <= 250, # labour
+    x1 + 3*x2 + 5*x3 + 6*x4 + 4*x5 <= 120, # assembly
+    x1 >= 10,
     x2 <= 15,
-    x3 <= 15,
-    x4 <= 15,
-    x5 <= 15
+    x3 + x4 + x5 >= 12,
+    2*x5 - x1 >= 0
 ]
 
 # constraints = [ 
@@ -61,6 +59,8 @@ print(f"Optimal value: {problem.value}")
 print(f"Optimal x1: {x1.value}")
 print(f"Optimal x2: {x2.value}")
 print(f"Optimal x3: {x3.value}")
+print(f"Optimal x4: {x4.value}")
+print(f"Optimal x5: {x5.value}")
 
 # for course selection example
 # if problem.status == "optimal":

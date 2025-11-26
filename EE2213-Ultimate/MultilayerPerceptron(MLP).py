@@ -258,35 +258,45 @@ if __name__ == '__main__':
     
     # no need to pad with bias since input X already has bias column
     X_train = np.array([
-        [1.2, -0.4, 0.8],
-        [-0.6, 2.0, -0.5],
-        [0.3, -1.2, 1.7],
-        [2.1, 0.5, -0.8]
+        [0.277, -0.017, -0.111],
+        [0.255, -0.024, -0.097],
+        [0.279, -0.019, -0.110],
+        [0.220, -0.035, -0.113],
+        [0.217, -0.032, -0.112]
     ])
     # need to manually one-hot encode the labels
     Y_train = np.array([
-        [0, 0, 1],
-        [1, 0, 0],
-        [0, 1, 0],
-        [0, 0, 1]
+        [1,0,0],
+        [1,0,0],
+        [0,1,0],
+        [0,0,1],
+        [0,0,1]
     ])
     X_test = np.array([
-        [1, 1, 1]
+        [1, 1,1]
     ])
     # col is neuron i weights in current layer, row must include bias row, then no of samples/neurons from prev layer
     w1 = np.array([
-        [0, 0, 0],
-        [0.02, -0.01, 0.03],
-        [-0.05, 0.04, 0.01],
-        [0.03, 0.02, -0.02]
+        [0, 0.1, -0.05],
+        [0.2, -0.1, 0.4],
+        [-0.3, 0.25, 0.1],
+        [-0.05, -0.2, 0.3]
     ])
     w2 = w1.copy()
-    # mlp: f(x) = softmax([1, relu(X@w1)]@w2) : 1 n_in -> 1 hidden -> 1 n_out. Layer size all 3 (excludes bias)
-    # so 3 layers of 3 neurons each, hidden layer 1 with relu, output with softmax.
+    w3 = w1.copy()
+    # mlp: f(x) = softmax([1, relu([1, relu(X@w1)]@w2)@w3]) : 1 n_in -> 2 hidden -> 1 n_out. Layer size all 3 (excludes bias)
+    # first layer size is num of features in X, excluding bias
+    # so 3 layers of 3 neurons each, hidden layer with relu, output with softmax.
     # weights col = no of neurons in that layer. rows = bias + no of neurons in prev layer
-    mlp = SimpleMLP(layer_sizes=[3, 3, 3], activations=['relu', 'softmax'], weights=[w1, w2])
+    mlp = SimpleMLP(layer_sizes=[3, 3, 3, 3], activations=['relu', 'relu', 'softmax'], weights=[w1, w2, w3])
     # loss function is categorical cross entropy, and we want to see verbose output
-    mlp.train(X_train, Y_train, learning_rate=0.1, iters=1, loss='cross_entropy', verbose=True, X_test=X_test)
+    mlp.train(X_train, Y_train, learning_rate=0.1, iters=2, loss='cross_entropy', verbose=True, X_test=X_test)
+    
+    # # mlp: f(x) = [1, relu(X@w1)]@2 : 1 n_in -> 1 hidden -> 1 n_out
+    # # w1 has 2 columns so 2 neurons, w2 has 1 col so 1 neuron. w2 activation is linear since no activation
+    # mlp = SimpleMLP(layer_sizes=[2, 2, 2], activations=['relu', 'linear'], weights=[w1, w2])
+    # # loss function is mse, and we want to see verbose output
+    # mlp.train(X_train, Y_train, learning_rate=0.1, iters=1, loss='mse', verbose=True, X_test=X_test)
     
     
     ''' Classification example '''

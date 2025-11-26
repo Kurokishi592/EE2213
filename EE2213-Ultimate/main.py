@@ -96,12 +96,19 @@ for _ in range(m):
     graph[v].append((u, w))   # if undirected
 '''
 weighted_graph = { # if undirected, each edge stored twice. If no weights (GBFS), put dummy weights
-    'S': {'A': 1, 'B':2},
-    'A': {'S':1, 'G': 4, 'C':2},
-    'B': {'S':2, 'C':5},
-    'C': {'A':2,'B':5,'G':1},
-    # 'D': {'B':4},
-    'G': {'A':4,'C':1}
+    # '1': {'2': 3, '3':2},
+    # '2': {'1':3, '4': 3, '5':5},
+    # '3': {'1':2, '6':2, '7':5},
+    # '4': {'2':3,'5':1},
+    # '5': {'2':5, '4':1, '6':2},
+    # '6': {'5':2,'3':2, '7':1},
+    # '7': {'3':5, '6':1}
+    'S' : {'A':2, 'B':6},
+    'A' : {'S':2, 'B':1},
+    'B' : {'S':6, 'A':1, 'C':1, 'D':2},
+    'C' : {'B':1, 'G':1},
+    'D' : {'B':2, 'G':1},
+    'G' : {'D':1, 'C':1}
 }
 coords = { # [x, y] coordinates for each node, can do [x] only for 1D
     'S': [0, 0],
@@ -111,11 +118,19 @@ coords = { # [x, y] coordinates for each node, can do [x] only for 1D
     'G': [4, 0]
 }
 heuristics = {  # if not coord but direct heuristic values for each node (e.g., straight-line distance to goal)
-    'S': 6.0,
-    'A': 5.0,
-    'B': 3.0,
-    'C': 2.0,
-    'G': 0.0
+    # '1': 5.0,
+    # '2': 4.0,
+    # '3': 3.0,
+    # '4': 2.0,
+    # '5': 1.0,
+    # '6' : 2.0,
+    # '7' : 0.0
+    'S' : 7.0,
+    'A' : 14.0,
+    'B' : 9.0,
+    'C' : 3.0,
+    'D' : 4.0,
+    'G' : 0.0
 }
 
 # result = dijkstra(weighted_graph, 'S') # any but graphs with negative weights
@@ -165,8 +180,8 @@ if multiple variables, put PARTIAL derivative of each variable in f_prime return
 
 not as good, but can also go to gradient_descent_int to try with pytorch tensors for automatic differentiation
 '''
-learning_rate = 0.01
-num_iters = 2
+learning_rate = 2
+num_iters = 10
 
 # print("Values of parameters at each step (first row is initial values, 2nd row first iter, post 1st gradient step): \n")
 # print(GradientDescent(lambda xy:((xy[0]-1)**2 + (xy[1]-2)**2), None, (0,0), learning_rate, num_iters)[0], "\n")
@@ -183,11 +198,11 @@ num_iters = 2
 # print(GradientDescent(lambda b:np.sin(np.exp(b))**2, None, 6, learning_rate, num_iters)[2], "\n")
 
 # print("Values of parameters at each step (first row is initial values): \n")
-# print(GradientDescent(lambda x:(x+2)**2+7, None, 4, learning_rate, num_iters)[0], "\n")
+# print(GradientDescent(lambda x:0.5*(x**2), None, 0.5, learning_rate, num_iters)[0], "\n")
 # print("Function values at each step: \n")
-# print(GradientDescent(lambda x:(x+2)**2+7, None, 4, learning_rate, num_iters)[1], "\n")
+# print(GradientDescent(lambda x:0.5*(x**2), None, 0.5, learning_rate, num_iters)[1], "\n")
 # print("Gradient vectors (partial derivatives) at each step: \n")
-# print(GradientDescent(lambda x:(x+2)**2+7, None, 4, learning_rate, num_iters)[2], "\n")
+# print(GradientDescent(lambda x:0.5*(x**2), None, 0.5, learning_rate, num_iters)[2], "\n")
 
 '''
 Projected Gradient Descent for constrained but differentiable convex
@@ -227,10 +242,17 @@ no need to add column of 1s to X for regression. X_fitted does it already. First
 for correlation, row is sample, column is feature. (only use training set) Comparing each feature column to one target Y 
 '''
 X=np.array(
-    [[1.2, -0.4, 0.8],
-     [-0.6, 2.0, -0.5],
-     [0.3, -1.2, 1.7],
-     [2.1, 0.5, -0.8]
+    [
+    #  [45, 26, 3],
+    #  [68, 19, 7],
+    #  [32, 25, 5],
+    #  [55, 35, 9],
+    #  [28, 21, 2]
+    [25, 15, 0],
+    [4, 3, 3],
+    [40, 30, 1],
+    [2, 2, 5],
+    [15, 10, 1]
    ]
 );
 
@@ -241,16 +263,17 @@ for onehot multi and multi logistic has one hot (0, 1, 2), the rest need manual 
 for correlation, row is samples. should be comparing to one target only so only 1 column
 '''
 Y=np.array(
-    [[3],
+    [[1],
+     [0],
      [1],
-     [2],
-     [3]
+     [0],
+     [1]
      ]
 );
 
 ''' same dont add one column of 1s to X_test for regression'''
 X_test=np.array(
-    [[4, 19, 80]
+    [[10, 5, 5]
     ]
 )
 
@@ -274,7 +297,7 @@ and multi-category classification tasks (manually one hot encode y for multi-cat
 '''
 # polynomial_regression(X, Y, order=2, X_test=X_test, binary_threshold=None) #order=1 is linear regression
 # ridge_regression(X_fitted,Y,LAMBDA=0.1, X_test=X_test_fitted, binary_threshold=None) #linear model
-# ridge_poly_regression(X, Y, LAMBDA=0.1, order=2, X_test=X_test, binary_threshold=None)
+# ridge_poly_regression(X, Y, LAMBDA=1, order=2, X_test=X_test, binary_threshold=None)
 
 '''
 used for classification tasks only, one for binary logistic regression, one for multinomial logistic regression
@@ -284,14 +307,14 @@ used for classification tasks only, one for binary logistic regression, one for 
 - uses gradient descent to train weights because CCE and LCE is not closed form
 '''
 w_initial = np.array(
-    [[0, 0, 0],
-     [0.02, -0.01, 0.03],
-     [-0.05, 0.04, 0.01],
-     [0.03, 0.02, -0.02]
+    [[0.5],
+     [-0.1],
+     [0.6],
+     [1.5]
     ]
 )
-# logistic_regression(X, Y, X_test, w_initial, learning_rate=0.1, num_iters=10000, binary_threshold=0.5)
-multinomial_logistic_regression(X, Y, X_test, w_initial, learning_rate=0.1, num_iters=10000)
+# logistic_regression(X, Y, X_test, w_initial, learning_rate=0.5, num_iters=20, binary_threshold=0.5)
+# multinomial_logistic_regression(X, Y, X_test, w_initial, learning_rate=0.1, num_iters=10000)
 
 
 '''
@@ -309,25 +332,25 @@ perform kmeans clustering and fuzzy c-means clustering, can be 2D or higher dime
     fuzzier determines the level of cluster fuzziness (of a point overlapping into multiple clusters)
     Auto stop iterations upon convergence.
 '''
-x1 = np.array([5])
-x2 = np.array([6])
-x3 = np.array([9])
-x4 = np.array([11])
-x5 = np.array([13])
-x6 = np.array([14])
-x7 = np.array([15])
-x8 = np.array([18])
-x9 = np.array([18])
-x10 = np.array([22])
-x11 = np.array([23])
-x12 = np.array([26])
-data_points = np.array([x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12])
-c1_init = np.array([6])
-c2_init = np.array([13.0])
-c3_init = np.array([22.0])
-centers_init = np.array([c1_init, c2_init, c3_init])
+x1 = np.array([1,2])
+x2 = np.array([1.5,1.8])
+x3 = np.array([5,8])
+x4 = np.array([8,8])
+x5 = np.array([1,0.6])
+x6 = np.array([9,11])
+# x7 = np.array([15])
+# x8 = np.array([18])
+# x9 = np.array([18])
+# x10 = np.array([22])
+# x11 = np.array([23])
+# x12 = np.array([26])
+data_points = np.array([x1, x2, x3, x4, x5, x6])#, x7, x8, x9, x10, x11, x12])
+c1_init = x1.copy()
+c2_init = x4.copy()
+# c3_init = np.array([22.0])
+centers_init = np.array([c1_init, c2_init])#, c3_init])
 
-# custom_kmeans(data_points, centers_init, n_clusters=3, max_iterations=100)
+custom_kmeans(data_points, centers_init, n_clusters=2, max_iterations=100)
 # centers, W = fuzzy_Cmeans(data_points, centers_init, fuzzier=2, max_iterations=100, verbose=True)
 
 

@@ -5,12 +5,13 @@ Method 4 and 5: Forward and Backward Chaining (Horn clauses)
 - Backward chaining: goal-driven recursive search using Modus Ponens on Horn rules.
 Only Modus Ponens is used (on Horn implications with a single positive head).
 '''
-A, B, C, P, L = symbols('A B C P L') # A and B are atomic facts, L is the goal
-horn_facts = {A, B} # Initial known facts: A and B are true
+A, B, C, D, E, F = symbols('A B C D E F') # A and B are atomic facts, L is the goal
+horn_facts = {C, E} # Initial known facts: A and B are true
 horn_rules = [
-    (frozenset({A, B}), C),          # A & B -> C
-    (frozenset({A, P}), L),       # A & P -> L
-    (frozenset({B, C}), P),          # B & C -> P
+    (frozenset({B, E}), A),          # B & E -> A
+    (frozenset({E}), D),       # E -> D
+    (frozenset({D}), B),
+    (frozenset({A, C}), F)          
 ]
 
 # ---------------- Horn utilities ----------------
@@ -97,12 +98,12 @@ def backward_chaining(goal, facts, rules, trace=True, depth=0, visited=None):
 
 
 
-# Run forward chaining demo
-fc_facts, fc_success = forward_chaining(horn_facts, horn_rules, goal=L, trace=True)
-print("[FC] Final facts:", sorted(map(str, fc_facts)))
-print("[FC] Result:", "derived L" if fc_success else "did not derive L")
+# # Run forward chaining
+# fc_facts, fc_success = forward_chaining(horn_facts, horn_rules, goal=F, trace=True)
+# print("[FC] Final facts:", sorted(map(str, fc_facts)))
+# print("[FC] Result:", "derived goal" if fc_success else "did not derive goal")
 
-# Run backward chaining demo
+# # Run backward chaining
 print("\n=== Backward Chaining Trace (Horn) ===")
-bc_success = backward_chaining(L, horn_facts, horn_rules, trace=True)
-print("[BC] Result:", "derived L" if bc_success else "did not derive L")
+bc_success = backward_chaining(F, horn_facts, horn_rules, trace=True)
+print("[BC] Result:", "derived goal" if bc_success else "did not derive goal")
